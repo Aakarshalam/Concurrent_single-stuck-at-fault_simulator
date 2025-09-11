@@ -8,3 +8,5 @@ Given a structural Verilog file and a set of test vectors, the tool evaluates fa
 - Works on **structural Verilog netlists**  
 - Accepts a **set of test vectors** as input  
 - Generates a detailed **fault coverage report** (detected vs. undetected faults)  
+
+This project is still **a work in progress**.  
