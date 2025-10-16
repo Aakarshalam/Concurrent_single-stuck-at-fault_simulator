@@ -2,7 +2,7 @@ import csv
 
 # vectors_mux.csv — all 8 input combos for A,B,Sel
 with open('vectors_mux.csv', 'w', newline='') as f:
-    w = csv.writer(f)             # comma-delimited, no BOM
+    w = csv.writer(f)             
     w.writerow(['A','B','Sel'])
     for Sel in [0,1]:
         for A in [0,1]:
@@ -19,3 +19,4 @@ with open('vectors_seq.csv', 'w', newline='') as f:
         w.writerow([A,B,1])  # rising edge -> latch D=A&B
 
 print("Wrote vectors_mux.csv and vectors_seq.csv")
+
