@@ -1,0 +1,27 @@
+Fault Simulation Report
+=======================
+Top module       : mux2to1
+Primary Inputs   : A, B, Sel
+Primary Outputs  : Y
+Vectors simulated: 6
+Faults (total)   : 14
+Detected         : 14
+Coverage         : 100.00%
+
+Detected Faults (net, sa, first_detected_at_vector):
+  id=   0 : A s-a-0 @ v3
+  id=   1 : B s-a-0 @ v5
+  id=   2 : Sel s-a-0 @ v5
+  id=   3 : Y s-a-0 @ v3
+  id=   4 : nSel s-a-0 @ v3
+  id=   5 : w1 s-a-0 @ v3
+  id=   6 : w2 s-a-0 @ v5
+  id=   7 : A s-a-1 @ v1
+  id=   8 : B s-a-1 @ v6
+  id=   9 : Sel s-a-1 @ v2
+  id=  10 : Y s-a-1 @ v1
+  id=  11 : nSel s-a-1 @ v6
+  id=  12 : w1 s-a-1 @ v1
+  id=  13 : w2 s-a-1 @ v1
+
+Undetected Faults:
