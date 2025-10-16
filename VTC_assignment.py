@@ -1,6 +1,4 @@
-#VTC Assignment
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+
 """
 Concurrent (bit-parallel) single stuck-at fault simulator
 for small structural Verilog circuits (AND/OR/NOT/DFF subset).
@@ -24,14 +22,11 @@ import re
 import sys
 from typing import Dict, List, Set, Tuple, Optional, NamedTuple
 
-# ---------------------------
-# Data structures
-# ---------------------------
 
 class Gate(NamedTuple):
-    gtype: str           # 'AND','OR','NOT','DFF'
+    gtype: str           
     out: str
-    ins: Tuple[str, ...] # ('a','b') or ('a',) or ('d','clk') for DFF (clk optional in eval, we handle state)
+    ins: Tuple[str, ...] 
 
 class Circuit:
     def __init__(self, name: str):
@@ -40,13 +35,12 @@ class Circuit:
         self.POs: List[str] = []
         self.wires: Set[str] = set()
         self.gates: List[Gate] = []
-        self.drivers: Dict[str, Gate] = {}     # net -> driving gate
-        self.fanout: Dict[str, List[str]] = collections.defaultdict(list)  # net -> list of sinks (by net)
+        self.drivers: Dict[str, Gate] = {}     
+        self.fanout: Dict[str, List[str]] = collections.defaultdict(list)  
         self.state_nodes: List[str] = []       # Q outputs of DFFs (stateful outputs)
         self.dff_defs: List[Gate] = []         # DFF gates, ins=(D, CLK), out=Q
 
     def finalize(self):
-        # record drivers and fanout
         for g in self.gates:
             if g.gtype != 'DFF':
                 self.drivers[g.out] = g
@@ -72,20 +66,18 @@ class Circuit:
             comb_gates.append(g)
             nodes.add(g.out)
             for i in g.ins:
-                indeg[g.out] += 0  # ensure key
+                indeg[g.out] += 0  
                 indeg[g.out] += 1
 
         # Inputs for comb logic are PIs + DFF Qs
         sources = set(self.PIs) | set(self.state_nodes)
 
         # Kahn's algorithm over gate graph by output dependency
-        # Build net->dependent gates map
         net_to_gates: Dict[str, List[Gate]] = collections.defaultdict(list)
         for g in comb_gates:
             for i in g.ins:
                 net_to_gates[i].append(g)
 
-        # indegree per gate = number of inputs that are driven by comb outputs (not sources)
         gate_in_cnt: Dict[Gate, int] = {}
         for g in comb_gates:
             cnt = 0
@@ -118,10 +110,8 @@ class Circuit:
             return comb_gates
         return order
 
-# ---------------------------
-# Verilog parser (tiny subset)
-# ---------------------------
 
+# Verilog parser 
 VERILOG_PRIMS = {
     'and': 'AND',
     'or':  'OR',
@@ -158,7 +148,6 @@ def parse_verilog_structural(path: str, top: Optional[str]=None) -> Circuit:
     name, port_blob, body = chosen
     ckt = Circuit(name)
 
-    # ---------- helpers ----------
     def split_names_csv(s: str) -> List[str]:
         out = []
         for n in s.split(','):
@@ -174,7 +163,6 @@ def parse_verilog_structural(path: str, top: Optional[str]=None) -> Circuit:
     def parse_ansi_ports(header: str):
         header = re.sub(r'\s+', ' ', header.strip())
         pis, pos, any_wires = [], [], set()
-        # Capture chunks between direction keywords
         for dirw, names in re.findall(
             r'\b(input|output|inout)\b\s+([^()]+?)(?=(?:\binput\b|\boutput\b|\binout\b|$))',
             header, flags=re.IGNORECASE
@@ -190,7 +178,6 @@ def parse_verilog_structural(path: str, top: Optional[str]=None) -> Circuit:
                 any_wires.add(name)
         return pis, pos, any_wires
 
-    # ---------- parse ANSI header + legacy body decls ----------
     # Body decls like: input A,B; output Y; wire w1,w2;
     body_inputs = []
     for blob in re.findall(r'\binput\s+([^;]+);', body, flags=re.IGNORECASE):
@@ -210,7 +197,6 @@ def parse_verilog_structural(path: str, top: Optional[str]=None) -> Circuit:
     ckt.POs = list(dict.fromkeys(body_outputs + header_pos))
     ckt.wires = set(body_wires) | header_wires | set(ckt.PIs) | set(ckt.POs)
 
-    # ---------- primitive instances ----------
     insts = re.findall(r'(?i)\b(and|or|not|dff)\b\s*(?:\w+)?\s*\(([^)]+)\)\s*;', body)
     for prim, args in insts:
         args = [a.strip() for a in args.split(',') if a.strip()]
@@ -243,10 +229,8 @@ def parse_verilog_structural(path: str, top: Optional[str]=None) -> Circuit:
 
     ckt.finalize()
     return ckt
-# ---------------------------
+  
 # Fault model & collapsing
-# ---------------------------
-
 class Fault(NamedTuple):
     net: str
     sa: int      # 0 or 1
@@ -259,7 +243,6 @@ def not_chain_collapse(c: Circuit, faults: List[Fault]) -> List[Fault]:
     sa@B maps to opposite sa@A if NOT has fanout==1, recursively.
     """ 
     out_faults = []
-    # quick lookup: for NOT outputs with fanout==1, map to input
     not_out_to_in = {}
     for g in c.gates:
         if g.gtype == 'NOT':
@@ -292,10 +275,7 @@ def enumerate_faults(c: Circuit, collapse=True) -> List[Fault]:
         return not_chain_collapse(c, base)
     return base
 
-# ---------------------------
 # Test vector reader
-# ---------------------------
-
 def read_vectors(path: str, pins: List[str]) -> List[Dict[str, int]]:
     """
     Supported formats:
@@ -349,10 +329,7 @@ def read_vectors(path: str, pins: List[str]) -> List[Dict[str, int]]:
             vectors.append(vec)
     return vectors
 
-# ---------------------------
 # Bit-parallel simulation helpers
-# ---------------------------
-
 def all_mask(bits: int) -> int:
     return (1 << bits) - 1
 
@@ -377,10 +354,8 @@ def gate_eval(g: Gate, getv, bits: int) -> int:
         return bit_not(getv(g.ins[0]), bits)
     raise RuntimeError("Combinational eval called on non-comb gate")
 
-# ---------------------------
-# Fault simulation (bit-parallel)
-# ---------------------------
 
+# Fault simulation (bit-parallel)
 def simulate(c: Circuit,
              faults: List[Fault],
              vectors: List[Dict[str, int]],
@@ -520,12 +495,7 @@ def simulate(c: Circuit,
                     qv = val.get(dff.out, encode_const(state[dff.out], bits))
                     state[dff.out] = 1 if (qv & 1) else 0
 
-        # end batches
-    # end vectors
-
-    # ---------------------------
     # Write report
-    # ---------------------------
     total_faults = len(faults)
     detected_count = len(detected_by)
     undetected_ids = sorted(set(range(total_faults)) - set(detected_by.keys()))
@@ -546,7 +516,6 @@ def simulate(c: Circuit,
 
         f.write("Detected Faults (net, sa, first_detected_at_vector):\n")
         for k in sorted(detected_by.keys()):
-            # Find the fault as originally enumerated (pre-collapse identity kept by idx)
             ff = faults[k]
             first_v = detected_by[k][0]
             f.write(f"  id={k:4d} : {ff.net} s-a-{ff.sa} @ v{first_v}\n")
@@ -557,10 +526,8 @@ def simulate(c: Circuit,
 
     print(f"[OK] Report written to: {out_path}")
 
-# ---------------------------
-# CLI
-# ---------------------------
 
+# CLI
 def main():
     ap = argparse.ArgumentParser(description="Concurrent (bit-parallel) stuck-at fault simulator")
     ap.add_argument('--verilog', required=True, help='Path to structural Verilog file')
@@ -587,3 +554,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
