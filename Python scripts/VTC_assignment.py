@@ -11,8 +11,8 @@ for small structural Verilog circuits (AND/OR/NOT/DFF subset).
 
 Usage:
   Clone the repository and run the following commands in Command Line / Terminal to generate reports.
-  python faultsim.py --verilog mux2to1.v --top mux2to1 --vectors vectors.txt --out report.txt
-  python faultsim.py --verilog seq_ckt.v --top seq_ckt --vectors vectors_seq.txt --out report.txt
+  python faultsim.py --verilog mux2to1.v --top mux2to1 --vectors vectors.csv --out report.txt
+  python faultsim.py --verilog seq_ckt.v --top seq_ckt --vectors vectors_seq.csv --out report.txt
 """
 
 import argparse
