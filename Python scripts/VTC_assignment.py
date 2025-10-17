@@ -9,11 +9,6 @@ for small structural Verilog circuits (AND/OR/NOT/DFF subset).
 - Simulates good and faulty circuits concurrently (bit-parallel) per vector.
 - Emits coverage statistics and per-fault detection summary.
 
-Usage:
-  Clone the repository and run the following commands in Command Line / Terminal to generate reports.
-  python generate_vectors.py
-  python VTC_assignment.py --verilog mux2to1.v --top mux2to1 --vectors vectors.csv --out report.txt 
-  python VTC_assignment.py --verilog seq_ckt.v --top seq_ckt --vectors vectors_seq.csv --out report.txt
 """
 
 import argparse
