@@ -16,3 +16,7 @@ Clone the repository and run the following commands in Command Line / Terminal t
 - python VTC_assignment.py --verilog seq_ckt.v --top seq_ckt --vectors vectors_seq.csv --out report.txt
 
 This project is still **a work in progress**
+
+# Future Targets
+- Add Fault collapsing and Event driven simulation
+- Integrate HDL toolchain for netlist generation of any verilog file and complete the pipeline

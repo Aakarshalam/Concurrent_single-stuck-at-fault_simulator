@@ -10,7 +10,6 @@ for small structural Verilog circuits (AND/OR/NOT/DFF subset).
 - Emits coverage statistics and per-fault detection summary.
 
 """
-
 import argparse
 import collections
 import csv
@@ -18,7 +17,6 @@ import os
 import re
 import sys
 from typing import Dict, List, Set, Tuple, Optional, NamedTuple
-
 
 class Gate(NamedTuple):
     gtype: str           
