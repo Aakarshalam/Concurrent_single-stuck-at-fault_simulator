@@ -1,18 +1,6 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-Event-driven, bit-parallel single stuck-at fault simulator
-- Structural Verilog (tiny primitive subset): AND/OR/NOT/NAND/NOR/XOR/XNOR/DFF
-- Variadic gate inputs (e.g., nand (y, a, b, c);)
-- Fault collapsing: NOT-chain (single-fanout) + dominance/equivalence for AND/OR/NAND/NOR
-- Event-driven simulation kernel (re-evaluates only gates affected by changes)
-- Concurrent bit-parallel fault simulation + fault dropping
-
-Usage (combinational example):
+Usage:
   python faultsim.py --verilog something.v --top something --vectors vectors.csv --out report.txt
-
-Self-test (uses the module in the prompt):
-  python faultsim.py --selftest
 """
 
 import argparse
@@ -23,9 +11,7 @@ import re
 import sys
 from typing import Dict, List, Set, Tuple, Optional, NamedTuple
 
-# ---------------------------
 # Data structures
-# ---------------------------
 
 class Gate(NamedTuple):
     gtype: str           # 'AND','OR','NOT','NAND','NOR','XOR','XNOR','DFF'
@@ -78,9 +64,8 @@ class Circuit:
                         q.append(h)
         return order if len(order) == len(comb) else comb
 
-# ---------------------------
-# Verilog parser (tiny subset)
-# ---------------------------
+
+# Verilog parser 
 
 VERILOG_PRIMS = {
     'and':  'AND',  'or':   'OR',   'not':  'NOT',  'dff':  'DFF',
@@ -191,9 +176,8 @@ def parse_verilog_structural(path: str, top: Optional[str]=None) -> Circuit:
     ckt.finalize()
     return ckt
 
-# ---------------------------
+
 # Fault model & collapsing
-# ---------------------------
 
 class Fault(NamedTuple):
     net: str
@@ -229,19 +213,6 @@ def enumerate_faults(c: Circuit) -> List[Fault]:
     return base
 
 def dominance_collapse(c: Circuit, faults: List[Fault]) -> List[Fault]:
-    """
-    Dominance/equivalence collapsing (safe version):
-      AND  : keep (Y sa-1) and one (Xi sa-0) among inputs with fanout==1;
-             drop (Y sa-0) and all (Xi sa-1) where fanout==1.
-      OR   : keep (Y sa-0) and one (Xi sa-1) among inputs with fanout==1;
-             drop (Y sa-1) and all (Xi sa-0) where fanout==1.
-      NAND : like AND with output polarity flipped (keep Y sa-0, one Xi sa-1; drop Y sa-1, Xi sa-0 for fanout==1).
-      NOR  : like OR  with output polarity flipped (keep Y sa-1, one Xi sa-0; drop Y sa-0, Xi sa-1 for fanout==1).
-
-    Notes:
-      - We only apply input-side drops/equivalence when that input net has single fanout (FFR-safe).
-      - XOR/XNOR/NOT/DFF: no dominance collapsing here (NOT handled by not-chain above).
-    """
     existing_pairs = {(f.net, f.sa) for f in faults}
     keep_pairs = set(existing_pairs)
 
@@ -281,22 +252,16 @@ def dominance_collapse(c: Circuit, faults: List[Fault]) -> List[Fault]:
                 for i in fan1: drop((i, 1))
                 for i in fan1[1:]: drop((i, 0))
 
-    # rebuild list with fresh indices
     kept = sorted([p for p in keep_pairs], key=lambda x: (x[0], x[1]))
     out: List[Fault] = []
     for idx, (net, sa) in enumerate(kept):
         out.append(Fault(net, sa, idx))
     return out
 
-# ---------------------------
+
 # Test vector reader
-# ---------------------------
 
 def read_vectors(path: str, pins: List[str]) -> List[Dict[str, int]]:
-    """
-    CSV with header of pin names or key=value per line.
-    Missing pins default to 0. Extra fields ignored.
-    """
     vectors: List[Dict[str, int]] = []
 
     with open(path, 'r', encoding='utf-8-sig') as f:
@@ -335,9 +300,6 @@ def read_vectors(path: str, pins: List[str]) -> List[Dict[str, int]]:
             vectors.append(vec)
     return vectors
 
-# ---------------------------
-# Bit helpers
-# ---------------------------
 
 def all_mask(bits: int) -> int: return (1 << bits) - 1
 def bit_not(x: int, bits: int) -> int: return (~x) & all_mask(bits)
@@ -372,9 +334,8 @@ def gate_eval_bits(g: Gate, getv, bits: int) -> int:
         return bit_not(getv(g.ins[0]), bits)
     raise RuntimeError("Non-combinational gate in comb eval")
 
-# ---------------------------
+
 # Event-driven concurrent simulation
-# ---------------------------
 
 def simulate_event_driven(c: Circuit,
                           faults: List[Fault],
@@ -541,9 +502,8 @@ def simulate_event_driven(c: Circuit,
             # Snapshot cache for event-driven next vector (same batch)
             batch_cache[key] = val
 
-    # ---------------------------
+ 
     # Write report
-    # ---------------------------
     total_faults = len(faults)
     detected_count = len(set(detected_by.keys()))
     undetected_ids = sorted(set(range(total_faults)) - set(detected_by.keys()))
@@ -575,9 +535,6 @@ def simulate_event_driven(c: Circuit,
 
     print(f"[OK] Report written to: {out_path}")
 
-# ---------------------------
-# CLI
-# ---------------------------
 
 def main():
     ap = argparse.ArgumentParser(description="Event-driven, bit-parallel stuck-at fault simulator")

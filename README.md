@@ -10,13 +10,15 @@ Given a structural Verilog file and a set of test vectors, the tool evaluates fa
 - Generates a detailed **fault coverage report** (detected vs. undetected faults)  
 
 # Usage
-Clone the repository and run the following commands in Command Line / Terminal to generate reports
-- python generate_vectors.py
-- python VTC_assignment.py --verilog mux2to1.v --top mux2to1 --vectors vectors.csv --out report.txt
-- python VTC_assignment.py --verilog seq_ckt.v --top seq_ckt --vectors vectors_seq.csv --out report.txt
+Clone the repository and run the following commands in the respective directory in Command Line / Terminal to generate reports
+1) Combinational circuits
+```bash
+- python generate_vectors.py --verilog something.v --top something --out vectors.csv
+- python VTC_assignment.py --verilog something.v --top something --vectors vectors.csv --out something_report.txt
+```
+2) Sequential circuits
+```bash
+- python generate_vectors.py --verilog seq_ckt.v --top seq_ckt --out vectors.csv
+- python VTC_assignment.py --verilog seq_ckt.v --top seq_ckt --vectors vectors.csv --out seq_report.txt
+```
 
-This project is still **a work in progress**
-
-# Future Targets
-- Add Fault collapsing and Event driven simulation
-- Integrate HDL toolchain for netlist generation of any verilog file and complete the pipeline
