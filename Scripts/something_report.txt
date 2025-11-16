@@ -1,0 +1,23 @@
+Fault Simulation Report
+=======================
+Top module       : something
+Primary Inputs   : A, B, Sel
+Primary Outputs  : y
+Vectors simulated: 8
+Faults (total)   : 10
+Detected         : 10
+Coverage         : 100.00%
+
+Detected Faults (net, sa, first_detected_at_vector):
+  id=   0 : A s-a-1 @ v3
+  id=   1 : B s-a-0 @ v3
+  id=   2 : B s-a-1 @ v1
+  id=   3 : Sel s-a-1 @ v1
+  id=   4 : w1 s-a-0 @ v1
+  id=   5 : w2 s-a-0 @ v2
+  id=   6 : w3 s-a-0 @ v1
+  id=   7 : w3 s-a-1 @ v2
+  id=   8 : y s-a-0 @ v2
+  id=   9 : y s-a-1 @ v1
+
+Undetected Faults:

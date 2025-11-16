@@ -1,8 +1,3 @@
-"""
-Usage:
-  python faultsim.py --verilog something.v --top something --vectors vectors.csv --out report.txt
-"""
-
 import argparse
 import collections
 import csv

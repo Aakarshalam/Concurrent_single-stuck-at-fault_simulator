@@ -1,0 +1,24 @@
+Fault Simulation Report
+=======================
+Top module       : seq_ckt
+Primary Inputs   : clk, rst, d
+Primary Outputs  : q, qbar
+State Nodes (Q)  : q
+Vectors simulated: 4
+Faults (total)   : 10
+Detected         : 7
+Coverage         : 70.00%
+
+Detected Faults (net, sa, first_detected_at_vector):
+  id=   2 : d s-a-0 @ v4
+  id=   3 : d_masked s-a-1 @ v2
+  id=   4 : q s-a-0 @ v4
+  id=   5 : q s-a-1 @ v1
+  id=   6 : qbar s-a-0 @ v1
+  id=   7 : qbar s-a-1 @ v4
+  id=   9 : rst s-a-1 @ v4
+
+Undetected Faults:
+  id=   0 : clk s-a-0
+  id=   1 : clk s-a-1
+  id=   8 : rst s-a-0
