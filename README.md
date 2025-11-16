@@ -13,12 +13,12 @@ Given a structural Verilog file and a set of test vectors, the tool evaluates fa
 Clone the repository and run the following commands in the respective directory in Command Line / Terminal to generate reports
 1) Combinational circuits
 ```bash
-- python generate_vectors.py --verilog something.v --top something --out vectors.csv
-- python VTC_assignment.py --verilog something.v --top something --vectors vectors.csv --out something_report.txt
+ python generate_vectors.py --verilog something.v --top something --out vectors.csv
+ python VTC_assignment.py --verilog something.v --top something --vectors vectors.csv --out something_report.txt
 ```
 2) Sequential circuits
 ```bash
-- python generate_vectors.py --verilog seq_ckt.v --top seq_ckt --out vectors.csv
-- python VTC_assignment.py --verilog seq_ckt.v --top seq_ckt --vectors vectors.csv --out seq_report.txt
+ python generate_vectors.py --verilog seq_ckt.v --top seq_ckt --out vectors.csv
+ python VTC_assignment.py --verilog seq_ckt.v --top seq_ckt --vectors vectors.csv --out seq_report.txt
 ```
 
